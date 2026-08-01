@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_tzolkin_whatsapp__list_instances",
+      "mcp__claude_ai_Gmail__search_threads",
+      "mcp__plugin_tzolkin_whatsapp__get_messages",
+      "mcp__claude_ai_Google_Drive__read_file_content",
+      "mcp__claude_ai_Google_Drive__get_file_metadata",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "mcp__plugin_tzolkin_whatsapp__send_text",
+      "Bash(ls node_modules/@next/)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(grep -iA3 -B1 \"GoogleTagManager\\\\|ReferenceError\\\\|third-part\")",
+      "Bash(curl -s \"https://cdn.utmify.com.br/scripts/utms/latest.js\" -o /tmp/utmify.js)",
+      "Read(//tmp/**)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(curl -s \"https://evento.kalidash.com/\")",
+      "Bash(curl -sI \"https://evento.kalidash.com/\")",
+      "Bash(kill 621)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(git commit -m '@ *)",
+      "Bash(git remote *)",
+      "Bash(git ls-remote *)",
+      "Bash(node -e \"const n='5531993886714';const m='Olá! Tenho interesse na Imersão Claude para Marketing. Pode me enviar mais informações?';console.log\\('https://wa.me/'+n+'?text='+encodeURIComponent\\(m\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 20 https://evento.kalidash.com)",
+      "Bash(curl -sL --max-time 20 https://evento.kalidash.com)",
+      "Bash(grep -o -i -E '.{0,40}googletagmanager\\\\.com/gtm\\\\.js[^\"]*')",
+      "Bash(grep -o -i -E 'noscript[^>]*>.{0,120}ns\\\\.html[^\"]*')",
+      "Bash(curl -s -o /dev/null -w \"gtm.js -> %{http_code}\\\\n\" --max-time 20 \"https://www.googletagmanager.com/gtm.js?id=GTM-WL5VKKV6\")"
+    ]
+  }
+}

@@ -1,13 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { GoogleTagManager } from '@next/third-parties/google';
-import { Inter, Geist } from "next/font/google";
+import { Inter, Geist, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
   display: "swap",
 });
@@ -38,7 +44,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`h-full antialiased ${inter.variable} font-sans ${geist.variable} overflow-x-hidden w-full`}>
+    <html lang="pt-BR" className={`h-full antialiased ${inter.variable} font-sans ${geist.variable} ${montserrat.variable} overflow-x-hidden w-full`}>
       {/* Google Tag Manager — filho direto de <html> conforme a doc do
           @next/third-parties. NÃO envolver num <head> manual: no App Router o
           <head> é gerado pelo metadata e envolver o <Script> interno quebra o
