@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { Eraser, RotateCcw, Check } from "lucide-react";
+import { Eraser, RotateCcw, Check, User } from "lucide-react";
 
 interface SignaturePadProps {
-  onConfirm: (dataUrl: string) => void;
+  initialName?: string;
+  onConfirm: (data: { name: string; signatureUrl: string }) => void;
 }
 
-export default function SignaturePad({ onConfirm }: SignaturePadProps) {
+export default function SignaturePad({ initialName = "", onConfirm }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [fullName, setFullName] = useState(initialName);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const historyRef = useRef<ImageData[]>([]);
@@ -86,39 +88,67 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
 
   const handleConfirm = () => {
     const canvas = canvasRef.current;
-    if (!canvas || !hasDrawn) return;
-    onConfirm(canvas.toDataURL("image/png"));
+    if (!canvas || !hasDrawn || !fullName.trim()) return;
+    onConfirm({
+      name: fullName.trim(),
+      signatureUrl: canvas.toDataURL("image/png"),
+    });
   };
+
+  const isFormValid = fullName.trim().length >= 3 && hasDrawn;
 
   return (
     <div className="space-y-4">
-      {/* Workspace */}
-      <div className="relative bg-[#fafafa] rounded-xl overflow-hidden shadow-inner border-[3px] border-white/5">
-        <canvas
-          ref={canvasRef}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={stopDrawing}
-          className="w-full h-44 cursor-crosshair touch-none select-none"
-          style={{ touchAction: "none" }}
-        />
-        {/* Guide line */}
-        <div className="absolute bottom-8 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
+      {/* Nome Completo Input (Mandatory) */}
+      <div>
+        <label htmlFor="sig-fullname" className="block text-xs font-medium text-white/70 mb-1.5 ml-0.5">
+          Nome Completo <span className="text-purple-400">*</span>
+        </label>
+        <div className="relative">
+          <input
+            id="sig-fullname"
+            type="text"
+            required
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Como aparecerá no certificado"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all pl-10"
+          />
+          <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+        </div>
+      </div>
 
-        {!hasDrawn && (
-          <span className="absolute inset-0 flex items-center justify-center text-slate-300 font-medium text-sm pointer-events-none px-4 text-center">
-            Desenhe sua rubrica / assinatura no espaço acima
-          </span>
-        )}
+      {/* Signature Canvas (Mandatory) */}
+      <div>
+        <label className="block text-xs font-medium text-white/70 mb-1.5 ml-0.5">
+          Rubrica / Assinatura <span className="text-purple-400">*</span>
+        </label>
+        <div className="relative bg-[#fafafa] rounded-xl overflow-hidden shadow-inner border-[3px] border-white/5">
+          <canvas
+            ref={canvasRef}
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseLeave={stopDrawing}
+            onTouchStart={startDrawing}
+            onTouchMove={draw}
+            onTouchEnd={stopDrawing}
+            className="w-full h-40 cursor-crosshair touch-none select-none"
+            style={{ touchAction: "none" }}
+          />
+          <div className="absolute bottom-7 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
+
+          {!hasDrawn && (
+            <span className="absolute inset-0 flex items-center justify-center text-slate-300 font-medium text-xs md:text-sm pointer-events-none px-4 text-center">
+              Desenhe sua assinatura no espaço acima
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between px-1">
         <span className="text-xs text-white/40 font-light">
-          Desenho obrigatório
+          Nome e desenho obrigatórios
         </span>
         <div className="flex gap-3">
           <button
@@ -146,11 +176,11 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
       <button
         type="button"
         onClick={handleConfirm}
-        disabled={!hasDrawn}
-        className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-purple-900/20 mt-4 cursor-pointer"
+        disabled={!isFormValid}
+        className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-purple-900/20 mt-3 cursor-pointer"
       >
         <Check className="w-5 h-5" />
-        Aplicar Assinatura
+        Aplicar no Certificado
       </button>
     </div>
   );

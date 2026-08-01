@@ -33,12 +33,13 @@ export default function CertificadoPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.includes("@") || password.length < 4) return;
+    if (!email.includes("@") || password.length < 4) return;
     setStep("cert");
   };
 
-  const handleSignatureConfirm = (dataUrl: string) => {
-    setSignatureUrl(dataUrl);
+  const handleSignatureConfirm = (data: { name: string; signatureUrl: string }) => {
+    setName(data.name);
+    setSignatureUrl(data.signatureUrl);
     setShowSigModal(false);
   };
 
@@ -209,24 +210,6 @@ export default function CertificadoPage() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-5">
               <div>
-                <label htmlFor="cert-name" className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Nome completo
-                </label>
-                <div className="relative">
-                  <input
-                    id="cert-name"
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Como aparecerá no certificado"
-                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pl-10"
-                  />
-                  <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                </div>
-              </div>
-
-              <div>
                 <label htmlFor="cert-email" className="block text-sm font-medium text-slate-700 mb-1.5">
                   E-mail
                 </label>
@@ -271,7 +254,7 @@ export default function CertificadoPage() {
 
               <button
                 type="submit"
-                disabled={!name.trim() || !email.includes("@") || password.length < 4}
+                disabled={!email.includes("@") || password.length < 4}
                 className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm"
               >
                 Acessar certificado
@@ -313,7 +296,7 @@ export default function CertificadoPage() {
           {/* Heading */}
           <div className="space-y-2 max-w-lg">
             <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-              Obrigado, {name.split(" ")[0]}! 🎉
+              Obrigado{name.trim() ? `, ${name.split(" ")[0]}` : ""}! 🎉
             </h1>
             <p className="text-white/60 text-base md:text-lg font-light">
               Seu certificado oficial do <span className="text-purple-400 font-medium">Treinamento In-Company Kalidash</span> foi gerado e baixado com sucesso!
@@ -463,7 +446,7 @@ export default function CertificadoPage() {
                 <X className="w-4 h-4" />
               </button>
               <h2 className="text-sm font-semibold text-white mb-4">Assinar certificado</h2>
-              <SignaturePad onConfirm={handleSignatureConfirm} />
+              <SignaturePad initialName={name} onConfirm={handleSignatureConfirm} />
             </div>
           </div>
         )
