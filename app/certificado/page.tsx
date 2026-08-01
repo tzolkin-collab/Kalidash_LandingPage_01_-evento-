@@ -77,15 +77,17 @@ export default function CertificadoPage() {
 
     // 2. Student name
     if (name.trim()) {
-      ctx.fillStyle = "#1a1423";
-      const nameLength = name.trim().length;
-      let canvasFontSize = 27;
-      if (nameLength > 24) canvasFontSize = 22;
-      if (nameLength > 34) canvasFontSize = 18;
-      ctx.font = `700 ${canvasFontSize}px 'Montserrat', sans-serif`;
+      ctx.fillStyle = "#111827";
+      const nameText = name.trim();
+      const nameLength = nameText.length;
+      let canvasFontSize = 68;
+      if (nameLength > 24) canvasFontSize = 54;
+      if (nameLength > 34) canvasFontSize = 44;
+      if (nameLength > 44) canvasFontSize = 36;
+      ctx.font = `700 ${canvasFontSize}px 'Inter', 'Montserrat', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(name.toUpperCase(), CERT_W / 2, CERT_H * NAME_Y_PCT);
+      ctx.fillText(nameText, CERT_W / 2, CERT_H * NAME_Y_PCT);
     }
 
     // 3. Student signature
@@ -94,14 +96,16 @@ export default function CertificadoPage() {
       sig.crossOrigin = "anonymous";
       sig.src = signatureUrl;
       await new Promise<void>((r) => { sig.onload = () => r(); sig.onerror = () => r(); });
-      const sw = 220, sh = 70;
+      const sw = 320, sh = 100;
       ctx.drawImage(sig, CERT_W * SIG_X_PCT - sw / 2, CERT_H * SIG_Y_PCT - sh / 2, sw, sh);
-      ctx.fillStyle = "#000000";
-      ctx.font = "14px Inter, sans-serif";
+      ctx.fillStyle = "#374151";
+      ctx.font = "600 24px 'Inter', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
       ctx.fillText(
         "Assinatura do Aluno",
         CERT_W * SIG_X_PCT,
-        CERT_H * SIG_Y_PCT + sh / 2 + 20
+        CERT_H * SIG_Y_PCT + sh / 2 + 25
       );
     }
 
