@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
+import React, { useState, useCallback, useEffect, lazy, Suspense } from "react";
 import Image from "next/image";
-import { Download, PenTool, X, CheckCircle2, Mail, Phone, ArrowLeft, ArrowRight, Globe } from "lucide-react";
-import SignaturePad from "./components/SignaturePad";
+import { Download, PenTool, X, User, Mail, Phone, ArrowRight, Globe } from "lucide-react";
 import { jsPDF } from "jspdf";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,8 +14,6 @@ const Ballpit = lazy(() => import("@/components/Ballpit"));
 const CERT_W = 2000;
 const CERT_H = 1414;
 const NAME_Y_PCT = 0.52;
-const SIG_Y_PCT = 0.815;
-const SIG_X_PCT = 0.5;
 
 /* ─── Name formatter: abbreviates middle names to initials ─── */
 function formatCertName(fullName: string): string {
@@ -37,10 +34,10 @@ export default function CertificadoPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Signature
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  // Name modal
   const [hasSigned, setHasSigned] = useState(false);
-  const [showSigModal, setShowSigModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [modalName, setModalName] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   /* ─── Phone mask helper ─────────────────────────────────── */
@@ -57,11 +54,11 @@ export default function CertificadoPage() {
     setStep("cert");
   };
 
-  const handleSignatureConfirm = (data: { name: string; signatureUrl: string }) => {
-    setName(data.name);
-    setSignatureUrl(data.signatureUrl);
+  const handleNameConfirm = () => {
+    if (modalName.trim().length < 3) return;
+    setName(modalName.trim());
     setHasSigned(true);
-    setShowSigModal(false);
+    setShowNameModal(false);
   };
 
   /* ─── Unified Certificate Engine ─────────────────────────── */
@@ -85,11 +82,11 @@ export default function CertificadoPage() {
     await new Promise<void>((r) => { tpl.onload = () => r(); tpl.onerror = () => r(); });
     ctx.drawImage(tpl, 0, 0, CERT_W, CERT_H);
 
-    // 2. Draw student name at the dedicated name area (NAME_Y_PCT)
+    // 2. Draw student name
     if (name.trim()) {
       const nameText = formatCertName(name);
-      const maxTextWidth = CERT_W * 0.88; // 88% of canvas width
-      let canvasFontSize = 120;
+      const maxTextWidth = CERT_W * 0.88;
+      let canvasFontSize = 118;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       // Shrink font until text fits within bounds
@@ -102,20 +99,10 @@ export default function CertificadoPage() {
       ctx.fillText(nameText, CERT_W * 0.5, CERT_H * NAME_Y_PCT);
     }
 
-    // 3. Draw student signature rubric at SIG_Y_PCT (if drawn)
-    if (signatureUrl) {
-      const sig = new window.Image();
-      sig.crossOrigin = "anonymous";
-      sig.src = signatureUrl;
-      await new Promise<void>((r) => { sig.onload = () => r(); sig.onerror = () => r(); });
-      const sw = 320, sh = 100;
-      ctx.drawImage(sig, CERT_W * SIG_X_PCT - sw / 2, CERT_H * SIG_Y_PCT - sh / 2, sw, sh);
-    }
-
     const dataUrl = canvas.toDataURL("image/png");
     setPreviewUrl(dataUrl);
     return dataUrl;
-  }, [name, signatureUrl]);
+  }, [name]);
 
   useEffect(() => {
     if (step === "cert" || step === "thanks") {
@@ -348,18 +335,18 @@ export default function CertificadoPage() {
   return (
     <div className="relative min-h-screen bg-[#0c0818] flex flex-col items-center overflow-hidden">
       {/* DotField background (lazy loaded, behind everything, disabled when modal open) */}
-      {!showSigModal && (
+      {!showNameModal && (
         <div className="fixed inset-0 z-0 pointer-events-none">
           <DotField
-            dotRadius={1.2}
-            dotSpacing={18}
-            cursorRadius={400}
-            bulgeStrength={50}
-            glowRadius={140}
+            dotRadius={1.8}
+            dotSpacing={16}
+            cursorRadius={500}
+            bulgeStrength={90}
+            glowRadius={200}
             sparkle={true}
-            gradientFrom="rgba(168, 85, 247, 0.45)"
-            gradientTo="rgba(100, 80, 160, 0.25)"
-            glowColor="transparent"
+            gradientFrom="rgba(168, 85, 247, 0.85)"
+            gradientTo="rgba(99, 60, 180, 0.55)"
+            glowColor="rgba(168, 85, 247, 0.35)"
           />
         </div>
       )}
@@ -404,21 +391,21 @@ export default function CertificadoPage() {
         </div>
       </div>
 
-      {/* Fixed Bottom CTA (Payment style) */}
+      {/* Fixed Bottom CTA */}
       <div className="fixed bottom-0 left-0 w-full bg-[#0c0818]/80 backdrop-blur-xl border-t border-white/5 p-4 md:p-6 z-30 flex justify-center pb-safe">
         <div className="w-full max-w-[840px]">
           {!hasSigned ? (
             <button
-              onClick={() => setShowSigModal(true)}
+              onClick={() => { setModalName(name); setShowNameModal(true); }}
               className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <PenTool className="w-5 h-5" />
-              Assinar Certificado
+              <User className="w-5 h-5" />
+              Inserir meu nome
             </button>
           ) : (
             <div className="flex gap-3">
               <button
-                onClick={() => setShowSigModal(true)}
+                onClick={() => { setModalName(name); setShowNameModal(true); }}
                 className="w-1/3 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-semibold border border-white/10 transition-colors cursor-pointer"
               >
                 Alterar
@@ -435,23 +422,43 @@ export default function CertificadoPage() {
         </div>
       </div>
 
-      {/* Signature modal */}
-      {
-        showSigModal && (
-          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="relative w-full max-w-md bg-[#130e22] border border-white/10 rounded-2xl p-5 shadow-2xl">
+      {/* Name modal */}
+      {showNameModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-md bg-[#130e22] border border-white/10 rounded-2xl p-5 shadow-2xl">
+            <button
+              onClick={() => setShowNameModal(false)}
+              className="absolute top-3 right-3 p-1.5 text-white/40 hover:text-white rounded-full transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h2 className="text-sm font-semibold text-white mb-4">Como seu nome aparecerá no certificado</h2>
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  id="modal-name"
+                  type="text"
+                  value={modalName}
+                  onChange={(e) => setModalName(e.target.value)}
+                  placeholder="Seu nome completo"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all pl-10"
+                  onKeyDown={(e) => e.key === "Enter" && handleNameConfirm()}
+                  autoFocus
+                />
+                <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+              </div>
               <button
-                onClick={() => setShowSigModal(false)}
-                className="absolute top-3 right-3 p-1.5 text-white/40 hover:text-white rounded-full transition-colors"
+                type="button"
+                onClick={handleNameConfirm}
+                disabled={modalName.trim().length < 3}
+                className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-purple-900/20 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                Aplicar no Certificado
               </button>
-              <h2 className="text-sm font-semibold text-white mb-4">Assinar certificado</h2>
-              <SignaturePad initialName={name} onConfirm={handleSignatureConfirm} />
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
     </div >
   );
 }
