@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import Image from "next/image";
-import { Download, PenTool, X, CheckCircle2, Mail, Phone, ArrowLeft, ArrowRight } from "lucide-react";
+import { Download, PenTool, X, CheckCircle2, Mail, Phone, ArrowLeft, ArrowRight, Globe } from "lucide-react";
 import SignaturePad from "./components/SignaturePad";
 import { jsPDF } from "jspdf";
 
@@ -198,6 +198,19 @@ export default function CertificadoPage() {
             <p className="text-white/50 text-xs lg:text-sm leading-relaxed">
               Acesse seu certificado oficial do Treinamento Corporativo de Inteligência Artificial Aplicada promovido pela Kalidash.
             </p>
+
+            <div className="pt-2">
+              <a
+                href="https://kalidash.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs font-medium transition-all group"
+              >
+                <Image src="/kalidash_symbol.svg" alt="Kalidash" width={14} height={14} className="w-3.5 h-3.5 rounded-full" />
+                <span>kalidash.com</span>
+                <Globe className="w-3 h-3 text-purple-400 group-hover:scale-110 transition-transform" />
+              </a>
+            </div>
           </div>
         </div>
 
@@ -310,7 +323,7 @@ export default function CertificadoPage() {
           </div>
 
           {/* Actions */}
-          <div className="w-full max-w-md pt-2">
+          <div className="w-full max-w-md pt-2 space-y-4 flex flex-col items-center">
             <button
               onClick={handleDownloadAgain}
               className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_25px_rgba(147,51,234,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -318,6 +331,17 @@ export default function CertificadoPage() {
               <Download className="w-5 h-5" />
               Baixar novamente
             </button>
+
+            <a
+              href="https://kalidash.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm font-medium transition-all shadow-lg hover:shadow-purple-900/30 group cursor-pointer"
+            >
+              <Image src="/kalidash_symbol.svg" alt="Kalidash" width={16} height={16} className="w-4 h-4 rounded-full" />
+              <span>kalidash.com</span>
+              <Globe className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform" />
+            </a>
           </div>
         </div>
       </div>
@@ -346,14 +370,25 @@ export default function CertificadoPage() {
         </div>
       )}
 
-      {/* Top Bar (Back button) */}
-      <div className="absolute top-0 left-0 w-full p-6 z-20 flex justify-between">
+      {/* Top Bar (Back button + Website badge) */}
+      <div className="absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-center">
         <button
           onClick={() => setStep("form")}
-          className="text-white/50 text-sm font-medium hover:text-white transition-colors flex items-center gap-2"
+          className="text-white/50 text-sm font-medium hover:text-white transition-colors flex items-center gap-2 cursor-pointer"
         >
           ← Voltar
         </button>
+
+        <a
+          href="https://kalidash.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs font-medium transition-all group"
+        >
+          <Image src="/kalidash_symbol.svg" alt="Kalidash" width={14} height={14} className="w-3.5 h-3.5 rounded-full" />
+          <span>kalidash.com</span>
+          <Globe className="w-3 h-3 text-purple-400 group-hover:scale-110 transition-transform" />
+        </a>
       </div>
 
       {/* Content (above DotField) */}
