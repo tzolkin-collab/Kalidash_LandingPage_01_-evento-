@@ -9,6 +9,8 @@ import { jsPDF } from "jspdf";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DotField = lazy(() => import("@/components/DotField") as any);
 
+const Ballpit = lazy(() => import("@/components/Ballpit"));
+
 /* ─── Certificate dimensions & positions ───────────────────── */
 const CERT_W = 2000;
 const CERT_H = 1414;
@@ -272,27 +274,14 @@ export default function CertificadoPage() {
   if (step === "thanks") {
     return (
       <div className="relative min-h-screen bg-[#0c0818] flex flex-col items-center justify-center p-6 overflow-hidden">
-        {/* Background DotField */}
+        {/* Background Ballpit */}
         <div className="fixed inset-0 z-0 pointer-events-none">
-          <DotField
-            dotRadius={1.2}
-            dotSpacing={18}
-            cursorRadius={400}
-            bulgeStrength={50}
-            glowRadius={140}
-            sparkle={true}
-            gradientFrom="rgba(168, 85, 247, 0.45)"
-            gradientTo="rgba(100, 80, 160, 0.25)"
-            glowColor="transparent"
-          />
+          <Suspense fallback={null}>
+            <Ballpit count={65} gravity={0.03} followCursor={true} />
+          </Suspense>
         </div>
 
         <div className="relative z-10 w-full max-w-2xl flex flex-col items-center text-center space-y-6 my-auto py-12">
-          {/* Success Badge */}
-          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.25)]">
-            <CheckCircle2 className="w-8 h-8" />
-          </div>
-
           {/* Heading */}
           <div className="space-y-2 max-w-lg">
             <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
@@ -319,21 +308,13 @@ export default function CertificadoPage() {
           </div>
 
           {/* Actions */}
-          <div className="w-full max-w-md space-y-3 pt-2">
+          <div className="w-full max-w-md pt-2">
             <button
               onClick={handleDownloadAgain}
               className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_25px_rgba(147,51,234,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Download className="w-5 h-5" />
               Baixar novamente
-            </button>
-
-            <button
-              onClick={() => setStep("cert")}
-              className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-medium border border-white/10 transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Voltar ao certificado / Alterar assinatura
             </button>
           </div>
         </div>
