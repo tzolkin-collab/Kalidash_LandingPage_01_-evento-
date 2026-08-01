@@ -198,10 +198,10 @@ export default function CertificadoPage() {
             />
             <h2 className="text-white text-xl lg:text-3xl font-bold leading-tight">
               Certificado de Conclusão<br />
-              <span className="text-purple-400">Treinamento In-Company</span>
+              <span className="text-purple-400">Imersão Kalidash</span>
             </h2>
             <p className="text-white/50 text-xs lg:text-sm leading-relaxed">
-              Acesse seu certificado oficial do Treinamento Corporativo de Inteligência Artificial Aplicada promovido pela Kalidash.
+              Acesse seu certificado oficial da Imersão Kalidash - Inteligência Artificial Aplicada ao Marketing.
             </p>
 
             <div className="pt-2">
@@ -308,7 +308,7 @@ export default function CertificadoPage() {
               Obrigado{name.trim() ? `, ${name.split(" ")[0]}` : ""}! 🎉
             </h1>
             <p className="text-white/60 text-base md:text-lg font-light">
-              Seu certificado oficial do <span className="text-purple-400 font-medium">Treinamento In-Company Kalidash</span> foi gerado e baixado com sucesso!
+              Seu certificado oficial da <span className="text-purple-400 font-medium">Imersão Kalidash</span> foi gerado e baixado com sucesso!
             </p>
           </div>
 
@@ -405,7 +405,7 @@ export default function CertificadoPage() {
             Sua Jornada Continua
           </h2>
           <p className="text-white/50 text-sm md:text-base font-light px-4">
-            Confirme sua assinatura para emitir e validar seu certificado oficial do Treinamento In-Company.
+            Confirme sua assinatura para emitir e validar seu certificado oficial da Imersão Kalidash.
           </p>
         </div>
 
