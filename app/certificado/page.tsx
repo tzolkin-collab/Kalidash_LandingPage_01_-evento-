@@ -66,9 +66,9 @@ export default function CertificadoPage() {
     // 2. Student name
     ctx.fillStyle = "#1a1423";
     const nameLength = name.trim().length;
-    let canvasFontSize = 32;
-    if (nameLength > 24) canvasFontSize = 26;
-    if (nameLength > 34) canvasFontSize = 22;
+    let canvasFontSize = 27;
+    if (nameLength > 24) canvasFontSize = 22;
+    if (nameLength > 34) canvasFontSize = 18;
     ctx.font = `700 ${canvasFontSize}px 'Montserrat', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -291,7 +291,7 @@ export default function CertificadoPage() {
               className="font-bold text-[#1a1423] tracking-wide uppercase whitespace-nowrap"
               style={{
                 fontFamily: "var(--font-montserrat)",
-                fontSize: name.trim().length > 34 ? "1.1cqw" : name.trim().length > 24 ? "1.3cqw" : "1.6cqw",
+                fontSize: name.trim().length > 34 ? "0.9cqw" : name.trim().length > 24 ? "1.1cqw" : "1.35cqw",
               }}
             >
               {name}
