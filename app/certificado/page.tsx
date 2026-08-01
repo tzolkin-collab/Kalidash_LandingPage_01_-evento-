@@ -203,19 +203,6 @@ export default function CertificadoPage() {
             <p className="text-white/50 text-xs lg:text-sm leading-relaxed">
               Acesse seu certificado oficial da Imersão Kalidash - Inteligência Artificial Aplicada ao Marketing.
             </p>
-
-            <div className="pt-2">
-              <a
-                href="https://kalidash.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs font-medium transition-all group"
-              >
-                <Image src="/kalidash_symbol.svg" alt="Kalidash" width={14} height={14} className="w-3.5 h-3.5 rounded-full" />
-                <span>kalidash.com</span>
-                <Globe className="w-3 h-3 text-purple-400 group-hover:scale-110 transition-transform" />
-              </a>
-            </div>
           </div>
         </div>
 
@@ -375,25 +362,14 @@ export default function CertificadoPage() {
         </div>
       )}
 
-      {/* Top Bar (Back button + Website badge) */}
-      <div className="absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-center">
+      {/* Top Bar (Back button) */}
+      <div className="absolute top-0 left-0 w-full p-6 z-20 flex justify-between">
         <button
           onClick={() => setStep("form")}
           className="text-white/50 text-sm font-medium hover:text-white transition-colors flex items-center gap-2 cursor-pointer"
         >
           ← Voltar
         </button>
-
-        <a
-          href="https://kalidash.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs font-medium transition-all group"
-        >
-          <Image src="/kalidash_symbol.svg" alt="Kalidash" width={14} height={14} className="w-3.5 h-3.5 rounded-full" />
-          <span>kalidash.com</span>
-          <Globe className="w-3 h-3 text-purple-400 group-hover:scale-110 transition-transform" />
-        </a>
       </div>
 
       {/* Content (above DotField) */}
