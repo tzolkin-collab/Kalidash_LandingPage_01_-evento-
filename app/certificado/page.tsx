@@ -65,7 +65,11 @@ export default function CertificadoPage() {
 
     // 2. Student name
     ctx.fillStyle = "#1a1423";
-    ctx.font = "800 44px 'Montserrat', sans-serif";
+    const nameLength = name.trim().length;
+    let canvasFontSize = 32;
+    if (nameLength > 24) canvasFontSize = 26;
+    if (nameLength > 34) canvasFontSize = 22;
+    ctx.font = `700 ${canvasFontSize}px 'Montserrat', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(name.toUpperCase(), CERT_W / 2, CERT_H * NAME_Y_PCT);
@@ -269,7 +273,7 @@ export default function CertificadoPage() {
         </div>
 
         {/* Certificate (Centered and scaled) */}
-        <div className="w-full max-w-[840px] relative rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 ring-1 ring-white/5">
+        <div className="@container w-full max-w-[840px] relative rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 ring-1 ring-white/5">
           {/* Template image */}
           <img
             src="/certificado-template.png"
@@ -280,12 +284,15 @@ export default function CertificadoPage() {
 
           {/* Student name overlay */}
           <div
-            className="absolute left-0 right-0 flex items-center justify-center pointer-events-none"
+            className="absolute left-0 right-0 flex items-center justify-center pointer-events-none px-4"
             style={{ top: `${NAME_Y_PCT * 100}%`, transform: "translateY(-50%)" }}
           >
             <span
-              className="text-[2.2cqw] sm:text-[2.2cqw] text-[12px] font-extrabold text-[#1a1423] tracking-widest uppercase whitespace-nowrap"
-              style={{ fontFamily: "var(--font-montserrat)", fontSize: "max(10px, 2.2cqw)" }}
+              className="font-bold text-[#1a1423] tracking-wide uppercase whitespace-nowrap"
+              style={{
+                fontFamily: "var(--font-montserrat)",
+                fontSize: name.trim().length > 34 ? "max(9px, 1.1cqw)" : name.trim().length > 24 ? "max(10px, 1.3cqw)" : "max(11px, 1.6cqw)",
+              }}
             >
               {name}
             </span>
