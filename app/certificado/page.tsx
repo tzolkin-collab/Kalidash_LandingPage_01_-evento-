@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import Image from "next/image";
-import { Download, PenTool, X, Eye, EyeOff } from "lucide-react";
+import { Download, PenTool, X, Eye, EyeOff, CheckCircle2, User, Mail, Lock, ArrowLeft } from "lucide-react";
 import SignaturePad from "./components/SignaturePad";
 import { jsPDF } from "jspdf";
 
@@ -18,29 +18,22 @@ const SIG_X_PCT = 0.5;
 
 /* ─── Page ─────────────────────────────────────────────────── */
 export default function CertificadoPage() {
-  const [step, setStep] = useState<"form" | "cert">("form");
+  const [step, setStep] = useState<"form" | "cert" | "thanks">("form");
 
   // Form
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [showPhone, setShowPhone] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Signature
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [showSigModal, setShowSigModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  /* ─── phone mask ───────────────────────────────────────── */
-  const formatPhone = (val: string) => {
-    const d = val.replace(/\D/g, "").slice(0, 11);
-    if (d.length <= 2) return d;
-    if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || phone.replace(/\D/g, "").length < 10) return;
+    if (!name.trim() || !email.includes("@") || password.length < 4) return;
     setStep("cert");
   };
 
@@ -106,13 +99,36 @@ export default function CertificadoPage() {
   }, [name, signatureUrl]);
 
   useEffect(() => {
-    if (step === "cert") {
+    if (step === "cert" || step === "thanks") {
       generateCertificate();
     }
   }, [step, generateCertificate]);
 
   /* ─── Export PDF ───────────────────────────────────────── */
   const handleDownload = useCallback(async () => {
+    let imgData = previewUrl;
+    if (!imgData) {
+      imgData = await generateCertificate();
+    }
+    if (!imgData) return;
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`Certificado_Kalidash_${name.replace(/\s+/g, "_")}.pdf`);
+
+    // Transition to thank you page after downloading
+    setStep("thanks");
+  }, [name, previewUrl, generateCertificate]);
+
+  const handleDownloadAgain = useCallback(async () => {
     let imgData = previewUrl;
     if (!imgData) {
       imgData = await generateCertificate();
@@ -176,7 +192,7 @@ export default function CertificadoPage() {
         {/* ── Right form panel ── */}
         <div className="flex-1 flex items-center justify-center p-6 lg:p-16">
           <div className="w-full max-w-[400px] space-y-6 lg:space-y-8">
-            {/* Logo (mobile shows here too since hero is smaller) */}
+            {/* Logo */}
             <div>
               <Image
                 src="/kalidash_symbol.svg"
@@ -196,59 +212,146 @@ export default function CertificadoPage() {
                 <label htmlFor="cert-name" className="block text-sm font-medium text-slate-700 mb-1.5">
                   Nome completo
                 </label>
-                <input
-                  id="cert-name"
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Como aparecerá no certificado"
-                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
-                />
+                <div className="relative">
+                  <input
+                    id="cert-name"
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Como aparecerá no certificado"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pl-10"
+                  />
+                  <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                </div>
               </div>
 
               <div>
-                <label htmlFor="cert-phone" className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Telefone / WhatsApp
+                <label htmlFor="cert-email" className="block text-sm font-medium text-slate-700 mb-1.5">
+                  E-mail
                 </label>
                 <div className="relative">
                   <input
-                    id="cert-phone"
-                    type={showPhone ? "text" : "password"}
+                    id="cert-email"
+                    type="email"
                     required
-                    value={phone}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      // When type=password, user types digits; when text, we format
-                      if (showPhone) {
-                        setPhone(formatPhone(raw));
-                      } else {
-                        // Only keep digits from password input
-                        const digits = raw.replace(/\D/g, "").slice(0, 11);
-                        setPhone(formatPhone(digits));
-                      }
-                    }}
-                    placeholder="(31) 99999-9999"
-                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pr-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu.email@exemplo.com"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pl-10"
                   />
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="cert-password" className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Senha
+                </label>
+                <div className="relative">
+                  <input
+                    id="cert-password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Sua senha de acesso"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pl-10 pr-10"
+                  />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <button
                     type="button"
-                    onClick={() => setShowPhone(!showPhone)}
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
-                    {showPhone ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
               <button
                 type="submit"
-                disabled={!name.trim() || phone.replace(/\D/g, "").length < 10}
+                disabled={!name.trim() || !email.includes("@") || password.length < 4}
                 className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm"
               >
                 Acessar certificado
               </button>
             </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     STEP 3 — Thank You / Post-Download Page
+     ═══════════════════════════════════════════════════════════ */
+  if (step === "thanks") {
+    return (
+      <div className="relative min-h-screen bg-[#0c0818] flex flex-col items-center justify-center p-6 overflow-hidden">
+        {/* Background DotField */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <DotField
+            dotRadius={1.2}
+            dotSpacing={18}
+            cursorRadius={400}
+            bulgeStrength={50}
+            glowRadius={140}
+            sparkle={true}
+            gradientFrom="rgba(168, 85, 247, 0.45)"
+            gradientTo="rgba(100, 80, 160, 0.25)"
+            glowColor="transparent"
+          />
+        </div>
+
+        <div className="relative z-10 w-full max-w-2xl flex flex-col items-center text-center space-y-6 my-auto py-12">
+          {/* Success Badge */}
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.25)]">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-2 max-w-lg">
+            <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+              Obrigado, {name.split(" ")[0]}! 🎉
+            </h1>
+            <p className="text-white/60 text-base md:text-lg font-light">
+              Seu certificado oficial do <span className="text-purple-400 font-medium">Treinamento In-Company Kalidash</span> foi gerado e baixado com sucesso!
+            </p>
+          </div>
+
+          {/* Certificate Image Preview Card */}
+          <div className="w-full max-w-[640px] relative rounded-xl overflow-hidden shadow-2xl shadow-purple-900/40 border border-white/10 ring-1 ring-white/10 my-4 bg-[#130e22]">
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="Certificado Kalidash"
+                className="w-full h-auto block"
+              />
+            ) : (
+              <div className="w-full aspect-[2000/1414] bg-white/5 animate-pulse flex items-center justify-center text-white/40 text-sm font-medium">
+                Gerando certificado...
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="w-full max-w-md space-y-3 pt-2">
+            <button
+              onClick={handleDownloadAgain}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_25px_rgba(147,51,234,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Download className="w-5 h-5" />
+              Baixar novamente
+            </button>
+
+            <button
+              onClick={() => setStep("cert")}
+              className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-medium border border-white/10 transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar ao certificado / Alterar assinatura
+            </button>
           </div>
         </div>
       </div>
