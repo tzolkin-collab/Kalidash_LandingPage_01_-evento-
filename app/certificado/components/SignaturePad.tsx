@@ -87,15 +87,16 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
   const clear = () => initCanvas();
 
   const handleConfirm = () => {
+    if (!fullName.trim()) return;
     const canvas = canvasRef.current;
-    if (!canvas || !hasDrawn || !fullName.trim()) return;
+    const sigUrl = (hasDrawn && canvas) ? canvas.toDataURL("image/png") : "";
     onConfirm({
       name: fullName.trim(),
-      signatureUrl: canvas.toDataURL("image/png"),
+      signatureUrl: sigUrl,
     });
   };
 
-  const isFormValid = fullName.trim().length >= 3 && hasDrawn;
+  const isFormValid = fullName.trim().length >= 3;
 
   return (
     <div className="space-y-4">
@@ -118,11 +119,13 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
         </div>
       </div>
 
-      {/* Signature Canvas (Mandatory) */}
+      {/* Signature Canvas (Optional) */}
       <div>
-        <label className="block text-xs font-medium text-white/70 mb-1.5 ml-0.5">
-          Rubrica / Assinatura <span className="text-purple-400">*</span>
-        </label>
+        <div className="flex justify-between items-center mb-1.5 ml-0.5">
+          <label className="block text-xs font-medium text-white/70">
+            Rubrica / Assinatura <span className="text-white/40 font-normal">(opcional)</span>
+          </label>
+        </div>
         <div className="relative bg-[#fafafa] rounded-xl overflow-hidden shadow-inner border-[3px] border-white/5">
           <canvas
             ref={canvasRef}
@@ -133,14 +136,14 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
             onTouchStart={startDrawing}
             onTouchMove={draw}
             onTouchEnd={stopDrawing}
-            className="w-full h-40 cursor-crosshair touch-none select-none"
+            className="w-full h-36 cursor-crosshair touch-none select-none"
             style={{ touchAction: "none" }}
           />
-          <div className="absolute bottom-7 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
+          <div className="absolute bottom-6 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
 
           {!hasDrawn && (
             <span className="absolute inset-0 flex items-center justify-center text-slate-300 font-medium text-xs md:text-sm pointer-events-none px-4 text-center">
-              Desenhe sua assinatura no espaço acima
+              Desenhe sua rubrica no espaço acima (opcional)
             </span>
           )}
         </div>
@@ -148,7 +151,7 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
 
       <div className="flex items-center justify-between px-1">
         <span className="text-xs text-white/40 font-light">
-          Nome e desenho obrigatórios
+          Apenas o nome é obrigatório
         </span>
         <div className="flex gap-3">
           <button
