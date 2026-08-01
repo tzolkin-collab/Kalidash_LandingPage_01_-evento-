@@ -11,6 +11,7 @@ interface SignaturePadProps {
 export default function SignaturePad({ initialName = "", onConfirm }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [fullName, setFullName] = useState(initialName);
+  const [enableRubric, setEnableRubric] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const historyRef = useRef<ImageData[]>([]);
@@ -30,8 +31,10 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
   }, []);
 
   useEffect(() => {
-    initCanvas();
-  }, [initCanvas]);
+    if (enableRubric) {
+      initCanvas();
+    }
+  }, [enableRubric, initCanvas]);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current!;
@@ -89,7 +92,7 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
   const handleConfirm = () => {
     if (!fullName.trim()) return;
     const canvas = canvasRef.current;
-    const sigUrl = (hasDrawn && canvas) ? canvas.toDataURL("image/png") : "";
+    const sigUrl = (enableRubric && hasDrawn && canvas) ? canvas.toDataURL("image/png") : "";
     onConfirm({
       name: fullName.trim(),
       signatureUrl: sigUrl,
@@ -119,61 +122,68 @@ export default function SignaturePad({ initialName = "", onConfirm }: SignatureP
         </div>
       </div>
 
-      {/* Signature Canvas (Optional) */}
-      <div>
-        <div className="flex justify-between items-center mb-1.5 ml-0.5">
-          <label className="block text-xs font-medium text-white/70">
-            Rubrica / Assinatura <span className="text-white/40 font-normal">(opcional)</span>
-          </label>
-        </div>
-        <div className="relative bg-[#fafafa] rounded-xl overflow-hidden shadow-inner border-[3px] border-white/5">
-          <canvas
-            ref={canvasRef}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-            className="w-full h-36 cursor-crosshair touch-none select-none"
-            style={{ touchAction: "none" }}
+      {/* Checkbox for Rubric */}
+      <div className="pt-1">
+        <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs font-medium text-white/80">
+          <input
+            type="checkbox"
+            checked={enableRubric}
+            onChange={(e) => setEnableRubric(e.target.checked)}
+            className="w-4 h-4 rounded border-white/20 bg-white/5 text-purple-600 focus:ring-purple-500/30 accent-purple-600 cursor-pointer"
           />
-          <div className="absolute bottom-6 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
-
-          {!hasDrawn && (
-            <span className="absolute inset-0 flex items-center justify-center text-slate-300 font-medium text-xs md:text-sm pointer-events-none px-4 text-center">
-              Desenhe sua rubrica no espaço acima (opcional)
-            </span>
-          )}
-        </div>
+          Incluir rubrica / assinatura desenhada
+        </label>
       </div>
 
-      <div className="flex items-center justify-between px-1">
-        <span className="text-xs text-white/40 font-light">
-          Apenas o nome é obrigatório
-        </span>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={undo}
-            disabled={!hasDrawn}
-            className="text-white/40 hover:text-white disabled:opacity-20 transition-colors flex items-center gap-1.5 text-xs font-medium cursor-pointer"
-            title="Desfazer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" /> Desfazer
-          </button>
-          <button
-            type="button"
-            onClick={clear}
-            disabled={!hasDrawn}
-            className="text-white/40 hover:text-rose-400 disabled:opacity-20 transition-colors flex items-center gap-1.5 text-xs font-medium cursor-pointer"
-            title="Limpar"
-          >
-            <Eraser className="w-3.5 h-3.5" /> Limpar
-          </button>
+      {/* Signature Canvas (Shown only when checkbox is checked) */}
+      {enableRubric && (
+        <div className="space-y-2 pt-1 transition-all">
+          <div className="relative bg-[#fafafa] rounded-xl overflow-hidden shadow-inner border-[3px] border-white/5">
+            <canvas
+              ref={canvasRef}
+              onMouseDown={startDrawing}
+              onMouseMove={draw}
+              onMouseUp={stopDrawing}
+              onMouseLeave={stopDrawing}
+              onTouchStart={startDrawing}
+              onTouchMove={draw}
+              onTouchEnd={stopDrawing}
+              className="w-full h-36 cursor-crosshair touch-none select-none"
+              style={{ touchAction: "none" }}
+            />
+            <div className="absolute bottom-6 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
+
+            {!hasDrawn && (
+              <span className="absolute inset-0 flex items-center justify-center text-slate-300 font-medium text-xs md:text-sm pointer-events-none px-4 text-center">
+                Desenhe sua rubrica no espaço acima
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end px-1">
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={undo}
+                disabled={!hasDrawn}
+                className="text-white/40 hover:text-white disabled:opacity-20 transition-colors flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+                title="Desfazer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Desfazer
+              </button>
+              <button
+                type="button"
+                onClick={clear}
+                disabled={!hasDrawn}
+                className="text-white/40 hover:text-rose-400 disabled:opacity-20 transition-colors flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+                title="Limpar"
+              >
+                <Eraser className="w-3.5 h-3.5" /> Limpar
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Confirm Button */}
       <button
