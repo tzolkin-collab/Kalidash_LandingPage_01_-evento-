@@ -82,7 +82,7 @@ export default function CertificadoPage() {
       await new Promise<void>((r) => { sig.onload = () => r(); sig.onerror = () => r(); });
       const sw = 220, sh = 70;
       ctx.drawImage(sig, CERT_W * SIG_X_PCT - sw / 2, CERT_H * SIG_Y_PCT - sh / 2, sw, sh);
-      ctx.fillStyle = "#4c1d95";
+      ctx.fillStyle = "#000000";
       ctx.font = "14px Inter, sans-serif";
       ctx.fillText(
         "Assinatura do Aluno",
@@ -291,7 +291,7 @@ export default function CertificadoPage() {
               className="font-bold text-[#1a1423] tracking-wide uppercase whitespace-nowrap"
               style={{
                 fontFamily: "var(--font-montserrat)",
-                fontSize: name.trim().length > 34 ? "max(9px, 1.1cqw)" : name.trim().length > 24 ? "max(10px, 1.3cqw)" : "max(11px, 1.6cqw)",
+                fontSize: name.trim().length > 34 ? "1.1cqw" : name.trim().length > 24 ? "1.3cqw" : "1.6cqw",
               }}
             >
               {name}
@@ -312,7 +312,7 @@ export default function CertificadoPage() {
                 src={signatureUrl}
                 alt="Assinatura do aluno"
                 className="object-contain"
-                style={{ width: "11cqw", height: "3.5cqw", minWidth: "40px" }}
+                style={{ width: "11cqw", height: "3.5cqw" }}
                 draggable={false}
               />
             </div>

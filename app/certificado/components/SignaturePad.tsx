@@ -11,7 +11,7 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [method, setMethod] = useState<"draw" | "type">("draw");
-  const [penColor, setPenColor] = useState("#1e293b");
+  const [penColor] = useState("#000000");
   const [typedText, setTypedText] = useState("");
   const [hasDrawn, setHasDrawn] = useState(false);
   const historyRef = useRef<ImageData[]>([]);
@@ -151,20 +151,7 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
             )}
           </div>
 
-          <div className="flex items-center justify-between px-1">
-            <div className="flex gap-2">
-              {["#1e293b", "#1e3a8a", "#6d28d9"].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setPenColor(c)}
-                  className={`w-6 h-6 rounded-full transition-transform ${
-                    penColor === c ? "scale-125 ring-2 ring-purple-400 ring-offset-2 ring-offset-[#130e22]" : "hover:scale-110"
-                  }`}
-                  style={{ backgroundColor: c }}
-                  title="Mudar cor da caneta"
-                />
-              ))}
-            </div>
+          <div className="flex items-center justify-end px-1">
             <div className="flex gap-3">
               <button onClick={undo} disabled={!hasDrawn} className="text-white/40 hover:text-white disabled:opacity-20 transition-colors flex items-center gap-1.5 text-xs font-medium" title="Desfazer">
                 <RotateCcw className="w-3.5 h-3.5" /> Desfazer
@@ -194,26 +181,12 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
             ) : (
               <span 
                 className="text-4xl italic text-center px-4 break-words" 
-                style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: penColor }}
+                style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "#000000" }}
               >
                 {typedText}
               </span>
             )}
             <div className="absolute bottom-6 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
-          </div>
-
-          <div className="flex justify-center gap-2 pt-2">
-              {["#1e293b", "#1e3a8a", "#6d28d9"].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setPenColor(c)}
-                  className={`w-6 h-6 rounded-full transition-transform ${
-                    penColor === c ? "scale-125 ring-2 ring-purple-400 ring-offset-2 ring-offset-[#130e22]" : "hover:scale-110"
-                  }`}
-                  style={{ backgroundColor: c }}
-                  title="Mudar cor da tinta"
-                />
-              ))}
           </div>
         </div>
       )}
