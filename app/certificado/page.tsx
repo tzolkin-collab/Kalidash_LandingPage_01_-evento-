@@ -463,7 +463,7 @@ export default function CertificadoPage() {
                 <X className="w-4 h-4" />
               </button>
               <h2 className="text-sm font-semibold text-white mb-4">Assinar certificado</h2>
-              <SignaturePad onConfirm={handleSignatureConfirm} />
+              <SignaturePad userName={name} onConfirm={handleSignatureConfirm} />
             </div>
           </div>
         )
