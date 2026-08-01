@@ -80,17 +80,17 @@ export default function CertificadoPage() {
       ctx.fillStyle = "#111827";
       const nameText = name.trim();
       const nameLength = nameText.length;
-      let canvasFontSize = 68;
-      if (nameLength > 24) canvasFontSize = 54;
-      if (nameLength > 34) canvasFontSize = 44;
-      if (nameLength > 44) canvasFontSize = 36;
+      let canvasFontSize = 66; // Reduced by 2px (68px -> 66px)
+      if (nameLength > 24) canvasFontSize = 52;
+      if (nameLength > 34) canvasFontSize = 42;
+      if (nameLength > 44) canvasFontSize = 34;
       ctx.font = `700 ${canvasFontSize}px 'Inter', 'Montserrat', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(nameText, CERT_W / 2, CERT_H * NAME_Y_PCT);
     }
 
-    // 3. Student signature
+    // 3. Student signature (Drawn rubric or Name signature)
     if (signatureUrl) {
       const sig = new window.Image();
       sig.crossOrigin = "anonymous";
@@ -98,14 +98,25 @@ export default function CertificadoPage() {
       await new Promise<void>((r) => { sig.onload = () => r(); sig.onerror = () => r(); });
       const sw = 320, sh = 100;
       ctx.drawImage(sig, CERT_W * SIG_X_PCT - sw / 2, CERT_H * SIG_Y_PCT - sh / 2, sw, sh);
+    } else if (name.trim()) {
+      // Name signature when no rubric is drawn
+      ctx.fillStyle = "#1f2937";
+      ctx.font = "italic 700 42px Georgia, 'Times New Roman', serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(name.trim(), CERT_W * SIG_X_PCT, CERT_H * SIG_Y_PCT);
+    }
+
+    // Signature label
+    if (name.trim() || signatureUrl) {
       ctx.fillStyle = "#374151";
-      ctx.font = "600 24px 'Inter', sans-serif";
+      ctx.font = "600 22px 'Inter', sans-serif"; // Reduced by 2px (24px -> 22px)
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(
         "Assinatura do Aluno",
         CERT_W * SIG_X_PCT,
-        CERT_H * SIG_Y_PCT + sh / 2 + 25
+        CERT_H * SIG_Y_PCT + 65
       );
     }
 
