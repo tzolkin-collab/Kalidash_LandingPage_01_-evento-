@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import Image from "next/image";
-import { Download, PenTool, X, Eye, EyeOff, CheckCircle2, User, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Download, PenTool, X, CheckCircle2, Mail, Phone, ArrowLeft } from "lucide-react";
 import SignaturePad from "./components/SignaturePad";
 import { jsPDF } from "jspdf";
 
@@ -20,20 +20,27 @@ const SIG_X_PCT = 0.5;
 export default function CertificadoPage() {
   const [step, setStep] = useState<"form" | "cert" | "thanks">("form");
 
-  // Form
+  // Form (Step 1)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState("");
 
   // Signature
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [showSigModal, setShowSigModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  /* ─── Phone mask helper ─────────────────────────────────── */
+  const formatPhone = (val: string) => {
+    const d = val.replace(/\D/g, "").slice(0, 11);
+    if (d.length <= 2) return d;
+    if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes("@") || password.length < 4) return;
+    if (!email.includes("@") || phone.replace(/\D/g, "").length < 10) return;
     setStep("cert");
   };
 
@@ -228,33 +235,26 @@ export default function CertificadoPage() {
               </div>
 
               <div>
-                <label htmlFor="cert-password" className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Senha
+                <label htmlFor="cert-phone" className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Telefone / WhatsApp
                 </label>
                 <div className="relative">
                   <input
-                    id="cert-password"
-                    type={showPassword ? "text" : "password"}
+                    id="cert-phone"
+                    type="text"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Sua senha de acesso"
-                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pl-10 pr-10"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    placeholder="(31) 99999-9999"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 text-base md:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all pl-10"
                   />
-                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                  <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 </div>
               </div>
 
               <button
                 type="submit"
-                disabled={!email.includes("@") || password.length < 4}
+                disabled={!email.includes("@") || phone.replace(/\D/g, "").length < 10}
                 className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm"
               >
                 Acessar certificado
