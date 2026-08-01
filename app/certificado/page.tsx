@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import Image from "next/image";
-import { Download, PenTool, X, CheckCircle2, Mail, Phone, ArrowLeft } from "lucide-react";
+import { Download, PenTool, X, CheckCircle2, Mail, Phone, ArrowLeft, ArrowRight } from "lucide-react";
 import SignaturePad from "./components/SignaturePad";
 import { jsPDF } from "jspdf";
 
@@ -29,6 +29,7 @@ export default function CertificadoPage() {
 
   // Signature
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  const [hasSigned, setHasSigned] = useState(false);
   const [showSigModal, setShowSigModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -49,6 +50,7 @@ export default function CertificadoPage() {
   const handleSignatureConfirm = (data: { name: string; signatureUrl: string }) => {
     setName(data.name);
     setSignatureUrl(data.signatureUrl);
+    setHasSigned(true);
     setShowSigModal(false);
   };
 
@@ -387,10 +389,10 @@ export default function CertificadoPage() {
       {/* Fixed Bottom CTA (Payment style) */}
       <div className="fixed bottom-0 left-0 w-full bg-[#0c0818]/80 backdrop-blur-xl border-t border-white/5 p-4 md:p-6 z-30 flex justify-center pb-safe">
         <div className="w-full max-w-[840px]">
-          {!signatureUrl ? (
+          {!hasSigned ? (
             <button
               onClick={() => setShowSigModal(true)}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <PenTool className="w-5 h-5" />
               Assinar Certificado
@@ -399,16 +401,16 @@ export default function CertificadoPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSigModal(true)}
-                className="w-1/3 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 font-semibold border border-white/10 transition-colors"
+                className="w-1/3 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-semibold border border-white/10 transition-colors cursor-pointer"
               >
                 Alterar
               </button>
               <button
                 onClick={handleDownload}
-                className="w-2/3 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] transition-all flex items-center justify-center gap-2"
+                className="w-2/3 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Download className="w-5 h-5" />
-                Baixar Certificado
+                <ArrowRight className="w-5 h-5" />
+                Confirmar e Avançar
               </button>
             </div>
           )}
