@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback, lazy, Suspense } from "react";
+import React, { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import Image from "next/image";
 import { Download, PenTool, X, Eye, EyeOff } from "lucide-react";
 import SignaturePad from "./components/SignaturePad";
@@ -28,6 +28,7 @@ export default function CertificadoPage() {
   // Signature
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [showSigModal, setShowSigModal] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   /* ─── phone mask ───────────────────────────────────────── */
   const formatPhone = (val: string) => {
@@ -48,13 +49,19 @@ export default function CertificadoPage() {
     setShowSigModal(false);
   };
 
-  /* ─── Export PDF ───────────────────────────────────────── */
-  const handleDownload = useCallback(async () => {
+  /* ─── Unified Certificate Engine ─────────────────────────── */
+  const generateCertificate = useCallback(async (): Promise<string | null> => {
+    if (typeof window === "undefined") return null;
+    try {
+      await document.fonts.ready;
+    } catch {
+      // fallback if fonts API unavailable
+    }
     const canvas = document.createElement("canvas");
     canvas.width = CERT_W;
     canvas.height = CERT_H;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) return null;
 
     // 1. Draw template
     const tpl = new window.Image();
@@ -64,15 +71,17 @@ export default function CertificadoPage() {
     ctx.drawImage(tpl, 0, 0, CERT_W, CERT_H);
 
     // 2. Student name
-    ctx.fillStyle = "#1a1423";
-    const nameLength = name.trim().length;
-    let canvasFontSize = 27;
-    if (nameLength > 24) canvasFontSize = 22;
-    if (nameLength > 34) canvasFontSize = 18;
-    ctx.font = `700 ${canvasFontSize}px 'Montserrat', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(name.toUpperCase(), CERT_W / 2, CERT_H * NAME_Y_PCT);
+    if (name.trim()) {
+      ctx.fillStyle = "#1a1423";
+      const nameLength = name.trim().length;
+      let canvasFontSize = 27;
+      if (nameLength > 24) canvasFontSize = 22;
+      if (nameLength > 34) canvasFontSize = 18;
+      ctx.font = `700 ${canvasFontSize}px 'Montserrat', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(name.toUpperCase(), CERT_W / 2, CERT_H * NAME_Y_PCT);
+    }
 
     // 3. Student signature
     if (signatureUrl) {
@@ -91,8 +100,25 @@ export default function CertificadoPage() {
       );
     }
 
-    // 4. Create PDF and add Canvas image
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+    const dataUrl = canvas.toDataURL("image/png");
+    setPreviewUrl(dataUrl);
+    return dataUrl;
+  }, [name, signatureUrl]);
+
+  useEffect(() => {
+    if (step === "cert") {
+      generateCertificate();
+    }
+  }, [step, generateCertificate]);
+
+  /* ─── Export PDF ───────────────────────────────────────── */
+  const handleDownload = useCallback(async () => {
+    let imgData = previewUrl;
+    if (!imgData) {
+      imgData = await generateCertificate();
+    }
+    if (!imgData) return;
+
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "mm",
@@ -102,9 +128,9 @@ export default function CertificadoPage() {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.save(`Certificado_Kalidash_${name.replace(/\s+/g, "_")}.pdf`);
-  }, [name, signatureUrl]);
+  }, [name, previewUrl, generateCertificate]);
 
   /* ═══════════════════════════════════════════════════════════
      STEP 1 — Login (layout Asaas: hero left + form right)
@@ -274,49 +300,18 @@ export default function CertificadoPage() {
           </p>
         </div>
 
-        {/* Certificate (Centered and scaled) */}
-        <div className="@container w-full max-w-[840px] relative rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 ring-1 ring-white/5">
-          {/* Template image */}
-          <img
-            src="/certificado-template.png"
-            alt="Certificado Kalidash"
-            className="w-full h-auto block"
-            draggable={false}
-          />
-
-          {/* Student name overlay */}
-          <div
-            className="absolute left-0 right-0 flex items-center justify-center pointer-events-none px-4"
-            style={{ top: `${NAME_Y_PCT * 100}%`, transform: "translateY(-50%)" }}
-          >
-            <span
-              className="font-bold text-[#1a1423] tracking-wide uppercase whitespace-nowrap"
-              style={{
-                fontFamily: "var(--font-montserrat)",
-                fontSize: name.trim().length > 34 ? "0.9cqw" : name.trim().length > 24 ? "1.1cqw" : "1.35cqw",
-              }}
-            >
-              {name}
-            </span>
-          </div>
-
-          {/* Student signature overlay */}
-          {signatureUrl && (
-            <div
-              className="absolute flex flex-col items-center pointer-events-none"
-              style={{
-                left: `${SIG_X_PCT * 100}%`,
-                top: `${SIG_Y_PCT * 100}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <img
-                src={signatureUrl}
-                alt="Assinatura do aluno"
-                className="object-contain"
-                style={{ width: "11cqw", height: "3.5cqw" }}
-                draggable={false}
-              />
+        {/* Certificate (Single Engine Canvas Preview) */}
+        <div className="w-full max-w-[840px] relative rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 ring-1 ring-white/5 bg-[#130e22]">
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="Certificado Kalidash"
+              className="w-full h-auto block"
+              draggable={false}
+            />
+          ) : (
+            <div className="w-full aspect-[2000/1414] bg-white/5 animate-pulse flex items-center justify-center text-white/40 text-sm font-medium">
+              Gerando certificado...
             </div>
           )}
         </div>
