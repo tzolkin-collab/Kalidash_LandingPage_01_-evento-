@@ -14,9 +14,19 @@ const Ballpit = lazy(() => import("@/components/Ballpit"));
 /* ─── Certificate dimensions & positions ───────────────────── */
 const CERT_W = 2000;
 const CERT_H = 1414;
-const NAME_Y_PCT = 0.435;
+const NAME_Y_PCT = 0.52;
 const SIG_Y_PCT = 0.815;
 const SIG_X_PCT = 0.5;
+
+/* ─── Name formatter: abbreviates middle names to initials ─── */
+function formatCertName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length <= 2) return fullName.trim();
+  const first = parts[0];
+  const last = parts[parts.length - 1];
+  const middle = parts.slice(1, -1).map((n) => `${n[0].toUpperCase()}.`);
+  return [first, ...middle, last].join(" ");
+}
 
 /* ─── Page ─────────────────────────────────────────────────── */
 export default function CertificadoPage() {
@@ -75,7 +85,24 @@ export default function CertificadoPage() {
     await new Promise<void>((r) => { tpl.onload = () => r(); tpl.onerror = () => r(); });
     ctx.drawImage(tpl, 0, 0, CERT_W, CERT_H);
 
-    // 2. Student signature (Drawn rubric or Name signature)
+    // 2. Draw student name at the dedicated name area (NAME_Y_PCT)
+    if (name.trim()) {
+      const nameText = formatCertName(name);
+      const maxTextWidth = CERT_W * 0.88; // 88% of canvas width
+      let canvasFontSize = 120;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      // Shrink font until text fits within bounds
+      do {
+        ctx.font = `italic 700 ${canvasFontSize}px Georgia, 'Times New Roman', serif`;
+        if (ctx.measureText(nameText).width <= maxTextWidth) break;
+        canvasFontSize -= 4;
+      } while (canvasFontSize > 32);
+      ctx.fillStyle = "#111827";
+      ctx.fillText(nameText, CERT_W * 0.5, CERT_H * NAME_Y_PCT);
+    }
+
+    // 3. Draw student signature rubric at SIG_Y_PCT (if drawn)
     if (signatureUrl) {
       const sig = new window.Image();
       sig.crossOrigin = "anonymous";
@@ -83,31 +110,6 @@ export default function CertificadoPage() {
       await new Promise<void>((r) => { sig.onload = () => r(); sig.onerror = () => r(); });
       const sw = 320, sh = 100;
       ctx.drawImage(sig, CERT_W * SIG_X_PCT - sw / 2, CERT_H * SIG_Y_PCT - sh / 2, sw, sh);
-    } else if (name.trim()) {
-      // Name signature when no rubric is drawn
-      ctx.fillStyle = "#1f2937";
-      const nameText = name.trim();
-      const nameLength = nameText.length;
-      let canvasFontSize = 48;
-      if (nameLength > 24) canvasFontSize = 38;
-      if (nameLength > 34) canvasFontSize = 30;
-      ctx.font = `italic 700 ${canvasFontSize}px Georgia, 'Times New Roman', serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(nameText, CERT_W * SIG_X_PCT, CERT_H * SIG_Y_PCT);
-    }
-
-    // Signature label
-    if (name.trim() || signatureUrl) {
-      ctx.fillStyle = "#374151";
-      ctx.font = "600 22px 'Inter', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        "Assinatura do Aluno",
-        CERT_W * SIG_X_PCT,
-        CERT_H * SIG_Y_PCT + 65
-      );
     }
 
     const dataUrl = canvas.toDataURL("image/png");
