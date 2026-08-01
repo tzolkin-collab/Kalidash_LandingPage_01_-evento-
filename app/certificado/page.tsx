@@ -234,20 +234,22 @@ export default function CertificadoPage() {
      ═══════════════════════════════════════════════════════════ */
   return (
     <div className="relative min-h-screen bg-[#0c0818] flex flex-col items-center overflow-hidden">
-      {/* DotField background (lazy loaded, behind everything) */}
-      <div className="fixed inset-0 z-0 pointer-events-auto">
-        <DotField
-          dotRadius={1.2}
-          dotSpacing={18}
-          cursorRadius={400}
-          bulgeStrength={50}
-          glowRadius={140}
-          sparkle={true}
-          gradientFrom="rgba(168, 85, 247, 0.45)"
-          gradientTo="rgba(100, 80, 160, 0.25)"
-          glowColor="transparent"
-        />
-      </div>
+      {/* DotField background (lazy loaded, behind everything, disabled when modal open) */}
+      {!showSigModal && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <DotField
+            dotRadius={1.2}
+            dotSpacing={18}
+            cursorRadius={400}
+            bulgeStrength={50}
+            glowRadius={140}
+            sparkle={true}
+            gradientFrom="rgba(168, 85, 247, 0.45)"
+            gradientTo="rgba(100, 80, 160, 0.25)"
+            glowColor="transparent"
+          />
+        </div>
+      )}
 
       {/* Top Bar (Back button) */}
       <div className="absolute top-0 left-0 w-full p-6 z-20 flex justify-between">

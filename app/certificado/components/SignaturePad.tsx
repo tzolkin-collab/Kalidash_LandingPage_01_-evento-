@@ -41,6 +41,7 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
   };
 
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    if ("touches" in e) e.stopPropagation();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -58,6 +59,7 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
   };
 
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    if ("touches" in e) e.stopPropagation();
     if (!isDrawing) return;
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
@@ -66,7 +68,10 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
     ctx.stroke();
   };
 
-  const stopDrawing = () => setIsDrawing(false);
+  const stopDrawing = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e && "touches" in e) e.stopPropagation();
+    setIsDrawing(false);
+  };
 
   const undo = () => {
     const canvas = canvasRef.current;
@@ -139,7 +144,8 @@ export default function SignaturePad({ onConfirm }: SignaturePadProps) {
               onTouchStart={startDrawing}
               onTouchMove={draw}
               onTouchEnd={stopDrawing}
-              className="w-full h-40 cursor-crosshair touch-none"
+              className="w-full h-40 cursor-crosshair touch-none select-none"
+              style={{ touchAction: "none" }}
             />
             {/* Guide line */}
             <div className="absolute bottom-8 left-6 right-6 border-b-2 border-slate-200 pointer-events-none" />
